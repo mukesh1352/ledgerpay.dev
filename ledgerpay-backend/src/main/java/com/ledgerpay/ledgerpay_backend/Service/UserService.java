@@ -6,19 +6,24 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import com.ledgerpay.ledgerpay_backend.Repository.UserRepository;
 import com.ledgerpay.ledgerpay_backend.dto.SignupRequest;
 import com.ledgerpay.ledgerpay_backend.dto.SigninRequest;
+import com.ledgerpay.ledgerpay_backend.dto.AuthResponse;
 import com.ledgerpay.ledgerpay_backend.dto.UserResponse;
 import com.ledgerpay.ledgerpay_backend.model.User;
+import com.ledgerpay.ledgerpay_backend.Security.JwtUtil;
 
 @Service
 public class UserService {
 
     private final UserRepository userrepo;
     private final BCryptPasswordEncoder passwordEncoder;
+    private final JwtUtil jwtUtil;
 
     public UserService(UserRepository userrepo,
-                       BCryptPasswordEncoder passwordEncoder) {
+                       BCryptPasswordEncoder passwordEncoder,
+                       JwtUtil jwtUtil) {
         this.userrepo = userrepo;
         this.passwordEncoder = passwordEncoder;
+        this.jwtUtil = jwtUtil;
     }
 
     public UserResponse signup(SignupRequest request) {
@@ -37,13 +42,14 @@ public class UserService {
         );
 
         User savedUser = userrepo.save(user);
+
         return new UserResponse(
             savedUser.getUsername(),
             savedUser.getBalance()
         );
     }
 
-    public UserResponse signin(SigninRequest request) {
+    public AuthResponse signin(SigninRequest request) {
 
         User user = userrepo.findByUsername(request.getUsername())
             .orElseThrow(() -> new RuntimeException("User not found"));
@@ -53,9 +59,9 @@ public class UserService {
                 user.getPassword())) {
             throw new RuntimeException("Invalid password");
         }
-        return new UserResponse(
-            user.getUsername(),
-            user.getBalance()
-        );
+
+        String token = jwtUtil.generateToken(user.getUsername());
+
+        return new AuthResponse(token);
     }
 }
