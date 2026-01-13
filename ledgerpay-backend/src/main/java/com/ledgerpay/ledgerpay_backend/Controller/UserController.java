@@ -4,8 +4,8 @@ import org.springframework.web.bind.annotation.*;
 
 import com.ledgerpay.ledgerpay_backend.Service.UserService;
 import com.ledgerpay.ledgerpay_backend.dto.SignupRequest;
+import com.ledgerpay.ledgerpay_backend.dto.UserResponse;
 import com.ledgerpay.ledgerpay_backend.dto.SigninRequest;
-import com.ledgerpay.ledgerpay_backend.model.User;
 
 @RestController
 @RequestMapping("/api/user")
@@ -17,11 +17,11 @@ public class UserController {
         this.userService = userService;
     }
     @PostMapping("/signup")
-    public User signup(@RequestBody SignupRequest request) {
-        return userService.Signup(request);
+    public UserResponse signup(@RequestBody SignupRequest request) {
+        return userService.signup(request);
     }
     @PostMapping("/signin")
-    public User signin(@RequestBody SigninRequest request) {
-        return userService.Signin(request);
+    public UserResponse signin(@RequestBody SigninRequest request) {
+        return userService.signin(request);
     }
 }
